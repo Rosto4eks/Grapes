@@ -1,4 +1,4 @@
-package Grapes
+package grapes
 
 import (
 	"fmt"
