@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-type obj map[string]interface{}
+type Obj map[string]interface{}
 
 type Context struct {
 	http.ResponseWriter
@@ -16,7 +16,7 @@ func (c *Context) File(filepath string) {
 	http.ServeFile(c.ResponseWriter, c.Request, filepath)
 }
 // sends json as a response
-func (c *Context) Json(message obj) {
+func (c *Context) Json(message Obj) {
 	json.NewEncoder(c.ResponseWriter).Encode(message)
 }
 
