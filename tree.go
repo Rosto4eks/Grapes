@@ -18,16 +18,17 @@ func (n *node) insert(method string, url string, handler HandlerFunc) {
 // recursive function that inserts node into the tree
 func insertIntoTree(n *node, method string, parts []string, index int, handler HandlerFunc) {
 	// check if current node has a child with same name like part of url path
-	if n.Children[parts[index]] != nil && n.Children[parts[index]].Handlers[method] != nil {
-		insertIntoTree(n.Children[parts[index]], method, parts, index + 1, handler)
-		return
-	} else if (n.Children[parts[index]] != nil) { // if founded node hasn't got a handler
+	// when it is end point, add handler to node
+	if n.Children[parts[index]] != nil && index == len(parts) - 1 { 
 		n.Children[parts[index]].Handlers[method] = handler
+		return
+	} else if n.Children[parts[index]] != nil { // when it isn't end point
+		insertIntoTree(n.Children[parts[index]], method, parts, index + 1, handler)
 		return
 	}
 	// if node is not found, and it isn't end point
 	// just create empty node and process the next point
-	if (index < len(parts) - 1) {
+	if index < len(parts) - 1 {
 		n.Children[parts[index]] = &node{
 			Handlers: make(map[string]HandlerFunc),
 			Children: make(map[string]*node),

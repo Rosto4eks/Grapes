@@ -2,6 +2,8 @@ package Grapes
 
 import (
 	"fmt"
+	"io/fs"
+	"os"
 	"log"
 	"net/http"
 )
@@ -14,7 +16,7 @@ type Router struct {
 // use this function to create new router
 func NewRouter() *Router {
 	router := Router{
-		&node{
+		tree: &node{
 			Children: make(map[string]*node),
 		},
 	}
@@ -62,15 +64,30 @@ func (r *Router) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 	http.NotFound(writer, req)
 }
 // use for serving your static files
-// ATTENTION: function only works for folders without subfolders (will be fixed in future updates)
 func (r *Router) Static(path, pattern string) {
-	sf := func(c Context) {
-		fileServer := http.StripPrefix(pattern, http.FileServer(http.Dir(path)))
-		fileServer.ServeHTTP(c.ResponseWriter, c.Request)
+    r.addStaticRoutes(path, pattern)
+}
+
+func (r *Router) addStaticRoutes(path, pattern string) {
+	files, err := os.ReadDir(path)
+    if err != nil {
+        log.Fatal(err)
+    }
+	for _,file := range files {
+		r.addStaticRoute(path, pattern, file)
 	}
-	
-	r.Get(pattern + "/*", sf)
-	r.Head(pattern + "/*", sf)
+}
+
+func (r *Router) addStaticRoute(path, pattern string, file fs.DirEntry) {
+	if file.IsDir() {
+		r.addStaticRoutes(path + "/" + file.Name(), pattern + "/" + file.Name())
+	} else {
+		sf := func(c Context) {
+			c.File(path + "/" + file.Name())
+		}
+		r.Get(pattern + "/" + file.Name(), sf)
+		r.Head(pattern + "/" + file.Name(), sf)
+	}
 }
 
 func (r *Router) Run(port int) {
