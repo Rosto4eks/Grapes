@@ -52,22 +52,24 @@ func (r *Router) Head(adress string, handler HandlerFunc) {
 }
 // serves all http requests
 // searchs in tree node with requested url
-func (r *Router) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
-	node := r.tree.search(req.URL.Path)
+func (r *Router) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	node, treePath := r.tree.search(req.URL.Path)
 	if node != nil && node.Handlers[req.Method] != nil {
 		node.Handlers[req.Method](Context{
-			writer,
-			req,
+			Request: req,
+			Response: res,
+			TreePath: treePath,
 		})
 		return
 	}
-	http.NotFound(writer, req)
+	http.NotFound(res, req)
 }
 // use for serving your static files
 func (r *Router) Static(path, pattern string) {
     r.addStaticRoutes(path, pattern)
 }
 
+// adds routes to all files in directory
 func (r *Router) addStaticRoutes(path, pattern string) {
 	files, err := os.ReadDir(path)
     if err != nil {
@@ -78,6 +80,7 @@ func (r *Router) addStaticRoutes(path, pattern string) {
 	}
 }
 
+// adds route to tree
 func (r *Router) addStaticRoute(path, pattern string, file fs.DirEntry) {
 	if file.IsDir() {
 		r.addStaticRoutes(path + "/" + file.Name(), pattern + "/" + file.Name())

@@ -11,7 +11,7 @@ type node struct {
 
 
 func (n *node) insert(method string, url string, handler HandlerFunc) {
-	parts := strings.Split(url, "/")[1:]
+	parts := getArrPath(url)
 	insertIntoTree(n, method, parts, 0, handler)
 }
 
@@ -44,30 +44,39 @@ func insertIntoTree(n *node, method string, parts []string, index int, handler H
 	}
 } 
 
-func (n *node) search(url string) *node {
-	parts := strings.Split(url, "/")[1:]
-	return searchInTree(n, parts, 0)
+func (n *node) search(url string) (*node, string) {
+	parts := getArrPath(url)
+	var treePath string
+	return searchInTree(n, parts, &treePath, 0), treePath
 }
 
-func searchInTree(n *node, parts []string, index int) *node {
+func searchInTree(n *node, parts []string, treePath *string, index int) *node {
 	// returns node when function reachs end point
 	if index == len(parts) {
 		return n
 	}
-	var next *node
+	var nodeWithParam *node
+	var key string
 	// searching for * parameter
 	for k, v := range n.Children {
-		if k == "*" {
-			next = v
+		if k == "*" || k[0] == ':' {
+			nodeWithParam = v
+			key = k
 		}
 	}
 	// when part has no matches with existing nodes
 	// if * parameter exists, return * node, in other cases return nil
 	if n.Children[parts[index]] == nil {
-		if next != nil {
-			return searchInTree(next, parts, index + 1)
+		if nodeWithParam != nil {
+			*treePath += "/" + key
+			return searchInTree(nodeWithParam, parts, treePath, index + 1)
 		}
 		return nil
 	}
-	return searchInTree(n.Children[parts[index]], parts, index + 1)
+	*treePath += "/" + parts[index]
+	return searchInTree(n.Children[parts[index]], parts, treePath, index + 1)
+}
+
+func getArrPath(path string) []string {
+	return strings.Split(path, "/")[1:]
 }

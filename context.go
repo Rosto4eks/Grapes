@@ -5,21 +5,39 @@ import (
 	"net/http"
 )
 
+// used to send json
+// grapes.Obj{"id": 1, "fruits": grapes.Obj{"apple": "green", "count": 8}}
 type Obj map[string]interface{}
 
 type Context struct {
-	http.ResponseWriter
-	*http.Request
+	Request *http.Request
+
+	Response http.ResponseWriter
+	
+	TreePath string
 }
-// sends file as a response
+
 func (c *Context) File(filepath string) {
-	http.ServeFile(c.ResponseWriter, c.Request, filepath)
+	http.ServeFile(c.Response, c.Request, filepath)
 }
-// sends json as a response
+
 func (c *Context) Json(message Obj) {
-	json.NewEncoder(c.ResponseWriter).Encode(message)
+	json.NewEncoder(c.Response).Encode(message)
 }
 
 func (c *Context) String(message string) {
-	json.NewEncoder(c.ResponseWriter).Encode(message)
+	json.NewEncoder(c.Response).Encode(message)
+}
+
+// function returns param from url 
+// route /Home/:index -> /Home/credits will return "credits"
+func (c *Context) Param(param string) string {
+	urlParts := getArrPath(c.Request.URL.Path)
+	treeParts := getArrPath(c.TreePath)
+	for i,part := range treeParts {
+		if param == part[1:] {
+			return urlParts[i]
+		}
+	}
+	return ""
 }
