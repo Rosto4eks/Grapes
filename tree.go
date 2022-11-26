@@ -1,8 +1,6 @@
 package grapes
 
-import (
-	"strings"
-)
+import "strings"
 
 type node struct {
 	Handlers map[string] HandlerFunc // where key is method
@@ -11,6 +9,10 @@ type node struct {
 
 
 func (n *node) insert(method string, url string, handler HandlerFunc) {
+	if url == "/" {
+		n.Handlers[method] = handler
+		return
+	}
 	parts := getArrPath(url)
 	insertIntoTree(n, method, parts, 0, handler)
 }
@@ -45,6 +47,9 @@ func insertIntoTree(n *node, method string, parts []string, index int, handler H
 } 
 
 func (n *node) search(url string) (*node, string) {
+	if url == "/" {
+		return n, "/"
+	}
 	parts := getArrPath(url)
 	var treePath string
 	return searchInTree(n, parts, &treePath, 0), treePath

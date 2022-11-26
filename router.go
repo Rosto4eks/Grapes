@@ -18,6 +18,7 @@ func NewRouter() *Router {
 	router := Router{
 		tree: &node{
 			Children: make(map[string]*node),
+			Handlers: map[string]HandlerFunc{},
 		},
 	}
 	return &router
