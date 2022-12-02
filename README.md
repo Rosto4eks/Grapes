@@ -3,18 +3,23 @@ grapes is a minimalistic router written in golang
 
 provides the ability to handle parameterized requests, send files, serve static requests, and more
 
-- [Installation](#Installation)
-- [Example](#Example)
-- [Tree structure](#Tree-structure)
-- [Context](#Context)
+- [Installation](#installation)
+- [Example](#example)
+- [Tree structure](#tree-structure)
+- [Context](#context)
 - Parameters:
-  - [Catch-all parameters](#Catch-all-parameters)
-  - [Named parameters](#Named-parameters)
-  - [Query parameters](#Query-parameters)
+  - [Catch-all parameters](#catch-all-parameters)
+  - [Named parameters](#named-parameters)
+  - [Query parameters](#query-parameters)
 - Serving files:
-  - [Send file](#Send-file)
-  - [Serving static files](#Serving-static-files)
-
+  - [Send file](#send-file)
+  - [Serving static files](#serving-static-files)
+- Forms:
+  - [Parse Form values](#parse-form-values)
+  - [Parse Form files](#parse-form-files)
+- Additional:
+  - [HttpNotFound](#http-not-found)
+  
 ## Installation
 To use grapes just create .mod file and add package
 ```
@@ -227,12 +232,102 @@ package main
 import "github.com/Rosto4eks/grapes"
 
 func main() {
-	r := grapes.NewRouter()
-	r.Static("public", "/public")
-	r.Get("/", func (ctx grapes.Context) {
-		ctx.File("public/home.html")
-	})
+  r := grapes.NewRouter()
+  r.Static("public", "/public")
+  r.Get("/", func (ctx grapes.Context) {
+    ctx.File("public/home.html")
+  })
 
-	r.Run(80)
+  r.Run(80)
 }
+```
+
+## Parse form values
+html form wich will be used in the next 2 examples
+```html
+<form action="/" method="post" enctype="multipart/form-data">
+  <input name="name" type="text">
+  <input name="password" type="text">
+  <input name="file" type="file">
+  <input type="submit">
+</form>
+```
+To parse values from form, use ctx.GetFormValue(key)
+```go
+package main
+
+import "github.com/Rosto4eks/grapes"
+
+func main() {
+  r := grapes.NewRouter()
+  r.Static("public", "/public")
+
+  r.Get("/", func (ctx grapes.Context) {
+    ctx.SendFile("public/home.html")
+  })
+  r.Post("/", func(ctx grapes.Context) {
+    name, _ := ctx.GetFormValue("name")
+    password, _ := ctx.GetFormValue("password")
+
+    ctx.SendJson(grapes.Obj{
+      "name":name,
+      "password":password,
+      })
+  })
+
+  r.Run(80)
+}
+```
+
+## Parse form files
+To parse form file, use ctx.GetFormFile(key)
+```go
+package main
+
+import "github.com/Rosto4eks/grapes"
+
+func main() {
+  r := grapes.NewRouter()
+  r.Static("public", "/public")
+
+  r.Get("/", func (ctx grapes.Context) {
+    ctx.SendFile("public/home.html")
+  })
+  r.Post("/", func(ctx grapes.Context) {
+    file, header, _ := ctx.GetFormFile("file")
+    ctx.SendJson(grapes.Obj{
+      "fileName": header.Filename,
+      "fileSize": header.Size,
+    })
+  })
+
+  r.Run(80)
+}
+```
+
+## Http-not-found
+router.HttpNotFound is the build-in handler wich provides processing unhandled routes, also you can change this fuction:
+```go
+package main
+
+import "github.com/Rosto4eks/grapes"
+
+func main() {
+  r := grapes.NewRouter()
+  
+  r.HttpNotFound = func(ctx grapes.Context) {
+    ctx.SendString("Oops! Page not found.")
+  }
+
+  r.Get("/", func (ctx grapes.Context) {
+    ctx.SendString("Hello")
+  })
+
+  r.Run(80)
+}
+```
+```
+/          -> "Hello"
+/Home      -> "Oops! Page not found."
+/Home/Info -> "Oops! Page not found."
 ```
