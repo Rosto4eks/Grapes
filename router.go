@@ -12,6 +12,7 @@ type HandlerFunc func(Context)
 
 type Router struct {
 	tree *node
+	HttpNotFound HandlerFunc
 }
 // use this function to create new router
 func NewRouter() *Router {
@@ -19,6 +20,9 @@ func NewRouter() *Router {
 		tree: &node{
 			Children: make(map[string]*node),
 			Handlers: map[string]HandlerFunc{},
+		},
+		HttpNotFound: func(ctx Context) {
+			http.NotFound(ctx.Response, ctx.Request)
 		},
 	}
 	return &router
@@ -55,15 +59,16 @@ func (r *Router) Head(adress string, handler HandlerFunc) {
 // searchs in tree node with requested url
 func (r *Router) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	node, treePath := r.tree.search(req.URL.Path)
+	ctx := Context{
+		Request: req,
+		Response: res,
+		TreePath: treePath,
+	}
 	if node != nil && node.Handlers[req.Method] != nil {
-		node.Handlers[req.Method](Context{
-			Request: req,
-			Response: res,
-			TreePath: treePath,
-		})
+		node.Handlers[req.Method](ctx)
 		return
 	}
-	http.NotFound(res, req)
+	r.HttpNotFound(ctx)
 }
 // use for serving your static files
 func (r *Router) Static(path, pattern string) {
@@ -87,7 +92,7 @@ func (r *Router) addStaticRoute(path, pattern string, file fs.DirEntry) {
 		r.addStaticRoutes(path + "/" + file.Name(), pattern + "/" + file.Name())
 	} else {
 		sf := func(c Context) {
-			c.File(path + "/" + file.Name())
+			c.SendFile(path + "/" + file.Name())
 		}
 		r.Get(pattern + "/" + file.Name(), sf)
 		r.Head(pattern + "/" + file.Name(), sf)
