@@ -14,7 +14,6 @@ provides the ability to handle parameterized requests, send files, serve static 
 - Serving files:
   - [Send file](#Send-file)
   - [Serving static files](#Serving-static-files)
-- 
 
 ## Installation
 To use grapes just create .mod file and add package
