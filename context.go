@@ -2,6 +2,7 @@ package grapes
 
 import (
 	"encoding/json"
+	"errors"
 	"mime/multipart"
 	"net/http"
 )
@@ -59,4 +60,12 @@ func(c *Context) GetFormFile(key string) (multipart.File, *multipart.FileHeader,
 		return nil, nil, err
 	}
 	return file, header, nil
+}
+
+func(c *Context) GetFormValue(key string) (string, error) {
+	value := c.Request.FormValue(key)
+	if value == "" {
+		return "", errors.New("incorrect key")
+	}
+	return value, nil
 }
