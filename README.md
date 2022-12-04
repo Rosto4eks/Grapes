@@ -18,6 +18,7 @@ provides the ability to handle parameterized requests, send files, serve static 
   - [Parse Form values](#parse-form-values)
   - [Parse Form files](#parse-form-files)
 - Additional:
+  - [Point](#point)
   - [HttpNotFound](#http-not-found)
   
 ## Installation
@@ -330,4 +331,36 @@ func main() {
 /          -> "Hello"
 /Home      -> "Oops! Page not found."
 /Home/Info -> "Oops! Page not found."
+```
+
+## Point 
+point allows you to create nodes for more comfortable using
+```go
+package main
+
+import "github.com/Rosto4eks/grapes"
+
+func main() {
+  r := grapes.NewRouter()
+
+  r.Get("/", func(ctx grapes.Context) {
+    ctx.SendString("/home")
+  })
+
+  p := r.Point("/info/credits")
+
+  p.Get("/:id", func(ctx grapes.Context) {
+    ctx.SendString(ctx.GetNamedParam("id"))
+  })
+  p.Get("/all", func(ctx grapes.Context) {
+    ctx.SendString("228")
+  })
+
+  r.Run(80)
+}
+```
+```
+/                  -> "home"
+/info/credits/1337 -> "1337"
+/info/credits/all  -> "228"
 ```
