@@ -50,7 +50,8 @@ func (c *Context) GetQueryParam(param string) string {
 	return c.Request.URL.Query().Get(param)
 }
 
-func(c *Context) GetFormFile(key string) (multipart.File, *multipart.FileHeader, error) {
+// used to get file from post form
+func (c *Context) GetFormFile(key string) (multipart.File, *multipart.FileHeader, error) {
 	err := c.Request.ParseMultipartForm(32 << 20)
 	if err != nil {
 		return nil, nil, err
@@ -62,7 +63,8 @@ func(c *Context) GetFormFile(key string) (multipart.File, *multipart.FileHeader,
 	return file, header, nil
 }
 
-func(c *Context) GetFormValue(key string) (string, error) {
+// used to get value from post form
+func (c *Context) GetFormValue(key string) (string, error) {
 	value := c.Request.FormValue(key)
 	if value == "" {
 		return "", errors.New("incorrect key")

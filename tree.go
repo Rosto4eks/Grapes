@@ -9,9 +9,14 @@ type node struct {
 
 
 func (n *node) insert(method string, url string, handler HandlerFunc) {
+	// insert into the first node
 	if url == "/" {
 		n.Handlers[method] = handler
 		return
+	}
+	// delete last '/' symbol from the url if it exists
+	if url[len(url) - 1] == '/' {
+		url = url[:len(url) - 1]
 	}
 	parts := getArrPath(url)
 	insertIntoTree(n, method, parts, 0, handler)
@@ -49,6 +54,10 @@ func insertIntoTree(n *node, method string, parts []string, index int, handler H
 func (n *node) search(url string) (*node, string) {
 	if url == "/" {
 		return n, "/"
+	}
+	// delete last '/' symbol from the url if it exists
+	if url[len(url) - 1] == '/' {
+		url = url[:len(url) - 1]
 	}
 	parts := getArrPath(url)
 	var treePath string
