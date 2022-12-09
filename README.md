@@ -37,11 +37,11 @@ func main() {
   r := grapes.NewRouter()
 
   r.Get("/", func(ctx grapes.Context) {
-    ctx.String("Hello World!")
+    ctx.SendString("Hello World!")
   })
 
   r.Get("/Home", func(ctx grapes.Context) {
-    ctx.Json(grapes.Obj{
+    ctx.SendJson(grapes.Obj{
       "title": "Home",
       "id": 1,
     })
@@ -49,7 +49,7 @@ func main() {
 
   r.Post("/Home", func(ctx grapes.Context) {
     id := ctx.GetQueryParam("Id")
-    ctx.Json(grapes.Obj{
+    ctx.SendJson(grapes.Obj{
       "id": id,
     })
   })
@@ -102,13 +102,13 @@ package main
 import "github.com/Rosto4eks/grapes"
 
 func catchAll(ctx grapes.Context) {
-  ctx.Json(grapes.Obj{
+  ctx.SendJson(grapes.Obj{
     "title": "Home",
   })
 }
 
 func catchInfo(ctx grapes.Context) {
-  ctx.Json(grapes.Obj{
+  ctx.SendJson(grapes.Obj{
     "title": "Info",
   })
 }
@@ -148,7 +148,7 @@ func main() {
 
   r.Get("/:id", func (ctx grapes.Context) {
     id := ctx.NamedParam("id")
-    ctx.Json(grapes.Obj{
+    ctx.SendJson(grapes.Obj{
       "id": id,
     })
   })
@@ -156,7 +156,7 @@ func main() {
   r.Get("/:id/:name", func (ctx grapes.Context) {
     id := ctx.NamedParam("id")
     name := ctx.NamedParam("name")
-    ctx.Json(grapes.Obj{
+    ctx.SendJson(grapes.Obj{
       "id": id,
       "name": name,
     })
@@ -183,7 +183,7 @@ func main() {
 
   r.Get("/Home", func (ctx grapes.Context) {
     id := ctx.GetQueryParam("id")
-    ctx.Json(grapes.Obj{
+    ctx.SendJson(grapes.Obj{
       "id": id,
     })
   })
@@ -195,7 +195,7 @@ func main() {
 /Home?id=1 -> {"id": "1"}
 ```
 ## Send file
-To send file, use function ctx.File(path)
+To send file, use function ctx.SendFile(path)
 ```go
 package main
 
@@ -205,7 +205,7 @@ func main() {
   r := grapes.NewRouter()
 
   r.Get("/", func (ctx grapes.Context) {
-    ctx.File("public/home.html")
+    ctx.SendFile("public/home.html")
   })
 
   r.Run(80)
@@ -236,7 +236,7 @@ func main() {
   r := grapes.NewRouter()
   r.Static("public", "/public")
   r.Get("/", func (ctx grapes.Context) {
-    ctx.File("public/home.html")
+    ctx.SendFile("public/home.html")
   })
 
   r.Run(80)
