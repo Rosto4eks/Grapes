@@ -48,7 +48,7 @@ func main() {
   })
 
   r.Post("/Home", func(ctx grapes.Context) {
-    id := ctx.Query("Id")
+    id := ctx.GetQueryParam("Id")
     ctx.Json(grapes.Obj{
       "id": id,
     })
@@ -172,7 +172,7 @@ func main() {
 /0x3DE3E/Rosto4eks/info -> 404 page not found
 ```
 ## Query parameters
-quoery params can be obtained using the function ctx.Query(param)
+quoery params can be obtained using the function ctx.GetQueryParam(param)
 ```go
 package main
 
@@ -182,7 +182,7 @@ func main() {
   r := grapes.NewRouter()
 
   r.Get("/Home", func (ctx grapes.Context) {
-    id := ctx.Query("id")
+    id := ctx.GetQueryParam("id")
     ctx.Json(grapes.Obj{
       "id": id,
     })
