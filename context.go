@@ -3,6 +3,8 @@ package grapes
 import (
 	"encoding/json"
 	"errors"
+	"html/template"
+	"log"
 	"mime/multipart"
 	"net/http"
 )
@@ -19,6 +21,12 @@ type Context struct {
 	TreePath string
 }
 
+// used to set status code to the response
+func (c *Context) Status(status int) {
+	c.Response.WriteHeader(status)
+}
+
+// used to send file of any type, also can be used for sending html files
 func (c *Context) SendFile(filepath string) {
 	http.ServeFile(c.Response, c.Request, filepath)
 }
@@ -29,6 +37,20 @@ func (c *Context) SendJson(message Obj) {
 
 func (c *Context) SendString(message string) {
 	json.NewEncoder(c.Response).Encode(message)
+}
+
+// redirect incoming request to another url
+func (c *Context) Redirect(url string) {
+	http.Redirect(c.Response, c.Request, url, http.StatusMovedPermanently)
+}
+
+// used to send html with parameters, all parameters must start with Uppercase symbol
+func (c *Context) Template(path string, data Obj) {
+	tmpl, err := template.ParseFiles(path)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	tmpl.Execute(c.Response, data)
 }
 
 // function returns param from url 
