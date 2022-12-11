@@ -11,6 +11,7 @@ provides the ability to handle parameterized requests, send files, serve static 
   - [Catch-all parameters](#catch-all-parameters)
   - [Named parameters](#named-parameters)
   - [Query parameters](#query-parameters)
+  - [Templates](#templates)
 - Serving files:
   - [Send file](#send-file)
   - [Serving static files](#serving-static-files)
@@ -19,6 +20,7 @@ provides the ability to handle parameterized requests, send files, serve static 
   - [Parse Form files](#parse-form-files)
 - Additional:
   - [Point](#point)
+  - [Redirect](#redirect)
   - [HttpNotFound](#http-not-found)
   
 ## Installation
@@ -243,6 +245,43 @@ func main() {
 }
 ```
 
+## Templates
+To send html with parameters, use ctx.Template(path, data)
+```go
+package main
+
+import "github.com/Rosto4eks/grapes"
+
+
+func main() {
+  r := grapes.NewRouter()
+
+  r.Get("/", func(ctx grapes.Context) {
+    ctx.Template("t.html", grapes.Obj{
+      "Name": "Rosto4eks",
+      "Id": 1337,
+    })
+  })
+
+  r.Run(80)
+}
+```
+t.html:
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  {{ .Name }} : {{ .Id }}
+</body>
+</html>
+```
+
 ## Parse form values
 html form wich will be used in the next 2 examples
 ```html
@@ -363,4 +402,30 @@ func main() {
 /                  -> "home"
 /info/credits/1337 -> "1337"
 /info/credits/all  -> "228"
+```
+
+## Redirect
+redirect allows you to redirect incoming requests
+```go
+package main
+
+import "github.com/Rosto4eks/grapes"
+
+
+func main() {
+  r := grapes.NewRouter()
+
+  r.Get("/", func(ctx grapes.Context) {
+    ctx.SendString("moo")
+  })
+
+  r.Get("/meow", func(ctx grapes.Context) {
+    ctx.Redirect("/")
+  })
+
+  r.Run(80)
+}
+```
+```
+/meow -> "moo"
 ```
