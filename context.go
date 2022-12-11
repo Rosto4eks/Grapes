@@ -44,7 +44,7 @@ func (c *Context) Redirect(url string) {
 	http.Redirect(c.Response, c.Request, url, http.StatusMovedPermanently)
 }
 
-// used to send html with parameters, all parameters must start with Uppercase symbol
+// used to send html with parameters
 func (c *Context) Template(path string, data Obj) {
 	tmpl, err := template.ParseFiles(path)
 	if err != nil {
