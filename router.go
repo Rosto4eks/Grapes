@@ -106,3 +106,10 @@ func (r *Router) Run(port int) {
 		log.Fatalln(err.Error())
 	}
 }
+
+func (r *Router) RunAddr(addr string) {
+	fmt.Println("Server started\nAddress: ", addr)
+	if err := http.ListenAndServe(addr, r); err != nil {
+		log.Fatalln(err.Error())
+	}
+}

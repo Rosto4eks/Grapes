@@ -93,3 +93,15 @@ func (c *Context) GetFormValue(key string) (string, error) {
 	}
 	return value, nil
 }
+
+func (c *Context) SetCookie(cookie *http.Cookie) {
+	http.SetCookie(c.Response, cookie)
+}
+
+func (c *Context) GetCookie(name string) (*http.Cookie, error) {
+	return c.Request.Cookie(name)
+}
+
+func (c *Context) GetCookies(name string) []*http.Cookie {
+	return c.Request.Cookies()
+}
