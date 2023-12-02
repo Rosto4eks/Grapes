@@ -101,14 +101,14 @@ func (r *Router) addStaticRoute(path, pattern string, file fs.DirEntry) {
 
 func (r *Router) Run(port int) {
 	addr := fmt.Sprintf(":%d", port)
-	fmt.Println("Server started\nPORT: ", port)
+	fmt.Println("> - + - + - + - <\nSERVER STARTED\nPORT: ", port, "\n> - + - + - + - <")
 	if err := http.ListenAndServe(addr, r); err != nil {
 		log.Fatalln(err.Error())
 	}
 }
 
 func (r *Router) RunAddr(addr string) {
-	fmt.Println("Server started\nAddress: ", addr)
+	fmt.Println("> - + - + - + - <\nSERVER STARTED\nAddress: ", addr, "\n> - + - + - + - <")
 	if err := http.ListenAndServe(addr, r); err != nil {
 		log.Fatalln(err.Error())
 	}
